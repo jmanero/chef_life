@@ -1,0 +1,3 @@
+require_relative '../lib/chef_life/cli'
+
+ChefLife::CLI.start(ARGV)
