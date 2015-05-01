@@ -27,7 +27,7 @@ module ChefLife
       'CVS', '.cvsignore', '_darcs', '.git', '.hg', '.hgignore',
       '.hgrags', 'RCS', 'SCCS', '.svn', '**/.git', '.temp'].freeze
 
-    desc 'package', 'Prepare a cookbook for '
+    desc 'package', 'Generate a tar gzip bundle of a cookbook'
     def package
       @temp_id = SecureRandom.hex(16)
       @temp_dir = File.join('.temp/', @temp_id)
@@ -74,7 +74,7 @@ module ChefLife
       self
     end
 
-    desc 'cleanup', 'Cleanup temporary files'
+    desc 'cleanup', 'Cleanup temporary files from packaging'
     def cleanup(temp = nil)
       return remove_dir temp unless temp.nil?
       Dir.glob('.temp/*').each { |t| remove_dir t }

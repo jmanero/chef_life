@@ -11,7 +11,6 @@ module ChefLife
     include Thor::Actions
     namespace :supermarket
 
-    desc 'share', 'Package and upload cookbook to a supermarket'
     class_option :site, :type => :string,
                         :aliases => :s,
                         :default => Chef::Config.knife['supermarket_site'] || 'https://supermarket.chef.io/'
@@ -22,8 +21,9 @@ module ChefLife
                         :aliases => :k,
                         :default => Chef::Config.knife['supermarket_key'] || Chef::Config.client_key
 
+    desc 'push', 'Package and upload cookbook to a supermarket'
     option 'dry-run', :type => :boolean, :default => false
-    def share
+    def push
       ## Package the cookbook. We retrun `self` from Cookbook#package:
       cookbook = invoke(:cookbook, :package, nil, [])
 
@@ -48,6 +48,10 @@ module ChefLife
       end
     ensure
       invoke :cookbook, :cleanup, nil, [cookbook.temp_dir] unless options['dry-run']
+    end
+
+    desc 'yank [VERSION]', 'Remove a cookbook from a supermarket'
+    def yank(version = nil)
     end
   end
 end
