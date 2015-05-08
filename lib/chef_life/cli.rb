@@ -16,10 +16,10 @@ module ChefLife
 
     desc 'about', 'State your purpose!'
     def about
-      say <<-THUG
+      say <<-THUGLIFE
          _
        .!.!.
-        ! !     I THINK I SHALL SHIT, SHOWER
+        ! !     I THINK I SHALL $#%!, SHOWER
         ; :     AND THEN GO GET SOME SODA
        ;   :
       ;_____:   {{{{{ CHEF LIFE }}}}}
@@ -30,8 +30,9 @@ module ChefLife
       .'   '.
       :     :
       '''''
-THUG
-      say "The Chef Life. Version #{ ChefLife::VERSION }"
+
+THUGLIFE
+      say "      The Chef Life. Version #{ ChefLife::VERSION }"
     end
 
     desc 'cookbook SUBCOMMAND ... ARGS', 'Cookbook tasks'
