@@ -10,19 +10,18 @@ module ChefLife
     include Thor::Actions
     namespace :s3
 
-    class_option :aws_key, :type => :string,
-                           :aliases => :k,
-                           :default => Chef::Config.knife['aws_secret_key_id']
-    class_option :aws_secret, :type => :string,
-                              :aliases => :s,
-                              :default => Chef::Config.knife['aws_secret_access_key']
-    class_option :bucket, :type => :string,
-                          :aliases => :k,
-                          :default => Chef::Config.knife['aws_cookbook_bucket']
+    class_option :aws_key, :type => :string, :aliases => :k
+    class_option :aws_secret, :type => :string, :aliases => :s
+    class_option :bucket, :type => :string, :aliases => :k
 
     desc 'push', 'Package and upload cookbook to an S3 bucket'
     option 'dry-run', :type => :boolean, :default => false
     def push
+      ## Set defaults after Chef::Config is loaded
+      options['aws_key'] ||= Chef::Config.knife['aws_secret_key_id']
+      options['aws_secret'] ||= Chef::Config.knife['aws_secret_access_key']
+      options['bucket'] ||= Chef::Config.knife['aws_artifact_bucket']
+
       ## Package the cookbook. We retrun `self` from Cookbook#package:
       cookbook = invoke(:cookbook, :package, nil, [])
 
@@ -36,7 +35,7 @@ module ChefLife
         ## TODO: Do S3 upload
       end
     ensure
-      invoke :cookbook, :cleanup, nil, [cookbook.temp_dir] unless options['dry-run']
+      invoke :cookbook, :clean, [cookbook.temp_dir] unless options['dry-run']
     end
 
     desc 'yank [VERSION]', 'Remove a cookbook from an S3 bucket'
