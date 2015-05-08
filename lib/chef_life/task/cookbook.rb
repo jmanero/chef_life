@@ -27,16 +27,24 @@ module ChefLife
       'CVS', '.cvsignore', '_darcs', '.git', '.hg', '.hgignore',
       '.hgrags', 'RCS', 'SCCS', '.svn', '**/.git', '.temp'].freeze
 
+    desc 'metadata', 'Write VERSION and metadata.json files for local usage'
+    def metadata(write_metadata_json = true)
+      cookbook = Chef::Cookbook::Metadata.new
+
+      invoke :version, :current, []
+      cookbook.from_file('metadata.rb')
+
+      IO.write('metadata.json', cookbook.to_json) if write_metadata_json
+      cookbook
+    end
+
     desc 'package', 'Generate a tar gzip bundle of a cookbook'
     def package
       @temp_id = SecureRandom.hex(16)
       @temp_dir = File.join('.temp/', @temp_id)
 
       ignore_file = IgnoreFile.new('chefignore', '.gitignore', EXCLUDED_VCS_FILES)
-      cookbook = Chef::Cookbook::Metadata.new
-
-      invoke :version, :current, []
-      cookbook.from_file('metadata.rb')
+      cookbook = invoke(:cookbook, :metadata, [false])
 
       @name = cookbook.name
       @version = cookbook.version
@@ -74,9 +82,11 @@ module ChefLife
       self
     end
 
-    desc 'cleanup', 'Cleanup temporary files from packaging'
-    def cleanup(temp = nil)
+    desc 'clean', 'Cleanup temporary files from packaging'
+    def clean(temp = nil)
       return remove_dir temp unless temp.nil?
+
+      remove_file 'metadata.json'
       Dir.glob('.temp/*').each { |t| remove_dir t }
     end
   end

@@ -11,19 +11,18 @@ module ChefLife
     include Thor::Actions
     namespace :supermarket
 
-    class_option :site, :type => :string,
-                        :aliases => :s,
-                        :default => Chef::Config.knife['supermarket_site'] || 'https://supermarket.chef.io/'
-    class_option :user, :type => :string,
-                        :aliases => :u,
-                        :default => Chef::Config.knife['supermarket_user'] || Chef::Config.node_name
-    class_option :key, :type => :string,
-                        :aliases => :k,
-                        :default => Chef::Config.knife['supermarket_key'] || Chef::Config.client_key
+    class_option :site, :type => :string, :aliases => :s
+    class_option :user, :type => :string, :aliases => :u
+    class_option :key, :type => :string, :aliases => :k
 
     desc 'push', 'Package and upload cookbook to a supermarket'
     option 'dry-run', :type => :boolean, :default => false
     def push
+      ## Set defaults after Chef::Config is loaded
+      options['site'] ||= Chef::Config.knife['supermarket_site'] || 'https://supermarket.chef.io/'
+      options['user'] ||= Chef::Config.knife['supermarket_user'] || Chef::Config.node_name
+      options['key'] ||= Chef::Config.knife['supermarket_key'] || Chef::Config.client_key
+
       ## Package the cookbook. We retrun `self` from Cookbook#package:
       cookbook = invoke(:cookbook, :package, nil, [])
 
@@ -47,7 +46,7 @@ module ChefLife
         end
       end
     ensure
-      invoke :cookbook, :cleanup, nil, [cookbook.temp_dir] unless options['dry-run']
+      invoke :cookbook, :clean, [cookbook.temp_dir] unless options['dry-run']
     end
 
     desc 'yank [VERSION]', 'Remove a cookbook from a supermarket'
